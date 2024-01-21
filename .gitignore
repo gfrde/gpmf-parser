@@ -34,3 +34,7 @@
 
 # pkg-config files
 /*.pc
+
+.idea/*
+cmake-build-debug/*
+build/*
