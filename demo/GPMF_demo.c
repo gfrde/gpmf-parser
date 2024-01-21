@@ -490,11 +490,11 @@ GPMF_ERR readMP4File(char* filename)
 											}
 											else if (type_samples == 0) //no TYPE structure
 											{
-												if (fuzzloopcount == 0) printf("%.3f%s, ", *ptr++, units[j % unit_samples]);
+												if (fuzzloopcount == 0) printf("%.5f%s, ", *ptr++, units[j % unit_samples]);
 											}
 											else if (complextype[j] != 'F')
 											{
-												if (fuzzloopcount == 0) printf("%.3f%s, ", *ptr++, units[j % unit_samples]);
+												if (fuzzloopcount == 0) printf("%.8f%s, ", *ptr++, units[j % unit_samples]);
 												pos += GPMF_SizeofType((GPMF_SampleType)complextype[j]);
 											}
 											else if (type_samples && complextype[j] == GPMF_TYPE_FOURCC)
