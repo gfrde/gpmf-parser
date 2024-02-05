@@ -233,7 +233,7 @@ GPMF_ERR readMP4File(char* filename)
 	if (metadatalength > 0.0)
 	{
 		uint32_t index, payloads = GetNumberPayloads(mp4handle);
-		//		printf("found %.2fs of metadata, from %d payloads, within %s\n", metadatalength, payloads, argv[1]);
+		printf("found %.2fs of metadata, from %d payloads, within %s\n", metadatalength, payloads, filename);
 
 		uint32_t fr_num, fr_dem;
 		uint32_t frames = GetVideoFrameRateAndCount(mp4handle, &fr_num, &fr_dem);

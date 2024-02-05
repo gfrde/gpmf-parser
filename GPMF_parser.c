@@ -263,7 +263,8 @@ GPMF_ERR GPMF_CopyState(GPMF_stream *msrc, GPMF_stream *mdst)
 }
 
 
-GPMF_ERR GPMF_Next(GPMF_stream *ms, GPMF_LEVELS recurse)
+GPMF_ERR GPMF_Next(GPMF_stream *ms, uint32_t recurse)
+//GPMF_ERR GPMF_Next(GPMF_stream *ms, GPMF_LEVELS recurse)
 {
 	if (ms)
 	{
@@ -431,7 +432,8 @@ GPMF_ERR GPMF_Next(GPMF_stream *ms, GPMF_LEVELS recurse)
 
 
 
-GPMF_ERR GPMF_FindNext(GPMF_stream *ms, uint32_t fourcc, GPMF_LEVELS recurse)
+GPMF_ERR GPMF_FindNext(GPMF_stream *ms, uint32_t fourcc, uint32_t recurse)
+//GPMF_ERR GPMF_FindNext(GPMF_stream *ms, uint32_t fourcc, GPMF_LEVELS recurse)
 {
 	GPMF_stream prevstate;
 
