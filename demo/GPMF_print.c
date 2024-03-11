@@ -31,7 +31,7 @@
 
 
 #define VERBOSE_OUTPUT		0
-#define VERBOSE_LIMIT		6
+#define VERBOSE_LIMIT		9
 
 #if VERBOSE_OUTPUT
 #define LIMITOUTPUT		arraysize = structsize;

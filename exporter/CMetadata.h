@@ -18,6 +18,8 @@ public:
 
     void addEntry(const std::string &type, CMetadataEntry& entry);
 
+    friend std::ostream &operator<<(std::ostream &os, const CMetadata &entry);
+
 private:
 
     std::string sourceName;

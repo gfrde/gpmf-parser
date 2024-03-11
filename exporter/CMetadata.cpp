@@ -7,7 +7,7 @@
 CMetadata::CMetadata(const std::string &sourceName, unsigned int index, double timeStart, double timeEnd) : sourceName(
         sourceName), index(index), timeStart(timeStart), timeEnd(timeEnd) {}
 
-void CMetadata::addEntry(const std::string &type, CMetadataEntry &entry) {
+void CMetadata::addEntry(const std::string &type, CMetadataEntry& entry) {
 
     auto el = entriesPerType.find(type);
     if (el == entriesPerType.end()) {
@@ -19,4 +19,20 @@ void CMetadata::addEntry(const std::string &type, CMetadataEntry &entry) {
     }
 }
 
+
+std::ostream &operator<<(std::ostream &os, const CMetadata &entry) {
+    os << "---- meta" << std::endl;
+    int cnt = 0;
+//    for(const std::string& i : entry.entriesPerType) {
+    for(const std::pair<std::string, std::vector<CMetadataEntry>> i : entry.entriesPerType) {
+        os << "  key=" << i.first << std::endl;
+
+        for (const CMetadataEntry& e: i.second) {
+            os << "    " << e << std::endl;
+        }
+
+        cnt ++;
+    }
+    return os;
+}
 

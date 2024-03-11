@@ -19,6 +19,9 @@
 #define	SHOW_SCALED_DATA			1
 #define	SHOW_THIS_FOUR_CC			STR2FOURCC("ACCL")
 #define SHOW_COMPUTED_SAMPLERATES	1
+#define SHOW_INDEX      			1
+
+
 
 uint32_t show_all_payloads = SHOW_ALL_PAYLOADS;
 uint32_t show_gpmf_structure = SHOW_GPMF_STRUCTURE;
@@ -92,8 +95,6 @@ GPMF_ERR readMP4File(char* filename)
             if (ret != GPMF_OK)
                 goto cleanup;
 
-            CMetadata meta("any source", index, in, out);
-
             if (show_payload_time)
                 if (show_gpmf_structure || show_payload_index || show_scaled_data)
                     if (show_all_payloads || index == 0)
@@ -101,8 +102,9 @@ GPMF_ERR readMP4File(char* filename)
 
             if (show_gpmf_structure)
             {
-                if (show_all_payloads || index == 0)
+                if (show_all_payloads || index == SHOW_INDEX)
                 {
+                    printf("GPMF STRUCTURE:\n");
                     // Output (printf) all the contained GPMF data within this payload
                     ret = GPMF_Validate(ms, GPMF_RECURSE_LEVELS); // optional
                     if (GPMF_OK != ret)
@@ -138,7 +140,7 @@ GPMF_ERR readMP4File(char* filename)
 
             if (show_payload_index)
             {
-                if (show_all_payloads || index == 0)
+                if (show_all_payloads || index == SHOW_INDEX)
                 {
                     printf("PAYLOAD INDEX:\n");
                     ret = GPMF_FindNext(ms, GPMF_KEY_STREAM, GPMF_RECURSE_LEVELS|GPMF_TOLERANT);
@@ -210,8 +212,11 @@ GPMF_ERR readMP4File(char* filename)
 
             if (show_scaled_data)
             {
-                if (show_all_payloads || index == 0)
+                if (show_all_payloads || index == SHOW_INDEX)
                 {
+                    CMetadata meta("any source", index, in, out);
+
+
                     printf("SCALED DATA:\n");
                     while (GPMF_OK == GPMF_FindNext(ms, STR2FOURCC("STRM"), GPMF_RECURSE_LEVELS|GPMF_TOLERANT)) //GoPro Hero5/6/7 Accelerometer)
                     {
@@ -309,7 +314,7 @@ GPMF_ERR readMP4File(char* filename)
                                             {
                                                 std::string s;
                                                 s += rawdata[pos];
-                                                entry.addValue(s);
+                                                entry.addValue(s, "");
 
                                                 printf("%c", rawdata[pos]);
 
@@ -320,9 +325,7 @@ GPMF_ERR readMP4File(char* filename)
                                             {
                                                 std::string s;
                                                 s += std::to_string(*ptr);
-                                                s += " ";
-                                                s += units[j % unit_samples];
-                                                entry.addValue(s);
+                                                entry.addValue(s, units[j % unit_samples]);
 
                                                 printf("%.5f%s, ", *ptr++, units[j % unit_samples]);
                                             }
@@ -330,9 +333,7 @@ GPMF_ERR readMP4File(char* filename)
                                             {
                                                 std::string s;
                                                 s += std::to_string(*ptr);
-                                                s += " ";
-                                                s += units[j % unit_samples];
-                                                entry.addValue(s);
+                                                entry.addValue(s, units[j % unit_samples]);
 
                                                 printf("%.8f%s, ", *ptr++, units[j % unit_samples]);
                                                 pos += GPMF_SizeofType((GPMF_SampleType)complextype[j]);
@@ -346,18 +347,19 @@ GPMF_ERR readMP4File(char* filename)
                                                 s += rawdata[pos+2];
                                                 s += rawdata[pos+3];
                                                 s += "'";
-                                                entry.addValue(s);
+                                                entry.addValue(s, "");
 
 
                                                 ptr++;
-                                                printf("%c%c%c%c, ", rawdata[pos], rawdata[pos + 1], rawdata[pos + 2], rawdata[pos + 3]);
+                                                printf("'%c%c%c%c', ", rawdata[pos], rawdata[pos + 1], rawdata[pos + 2], rawdata[pos + 3]);
+                                                printf(" (size=%d), ", GPMF_SizeofType((GPMF_SampleType)complextype[j]));
                                                 pos += GPMF_SizeofType((GPMF_SampleType)complextype[j]);
                                             }
                                         }
 
                                         meta.addEntry(fourcc_key, entry);
-                                        std::cout << entry;
-                                        printf("\n");
+//                                        std::cout << "   --> " << entry;
+//                                        printf("\n");
                                     }
                                 }
                                 free(tmpbuffer);
@@ -365,6 +367,10 @@ GPMF_ERR readMP4File(char* filename)
                         }
                     }
                     GPMF_ResetState(ms);
+
+                    std::cout << "   --> " << meta;
+                    printf("\n");
+
                 }
             }
         }
@@ -417,6 +423,36 @@ GPMF_ERR readMP4File(char* filename)
 
 int main(int argc, char* argv[])
 {
+
+    // get file return data
+    if (argc < 2)
+    {
+//        printHelp(argv[0]);
+        return -1;
+    }
+
+    for (int i = 2; i < argc; i++)
+    {
+        if (argv[i][0] == '-') //feature switches
+        {
+            switch (argv[i][1])
+            {
+                case 'a': show_all_payloads ^= 1;				break;
+                case 'g': show_gpmf_structure ^= 1;				break;
+                case 'i': show_payload_index ^= 1;				break;
+                case 's': show_scaled_data ^= 1;				break;
+                case 'c': show_computed_samplerates ^= 1;		break;
+                case 'v': show_video_framerate ^= 1;			break;
+                case 't': show_payload_time ^= 1;				break;
+                case 'f': show_this_four_cc = STR2FOURCC((&(argv[i][2])));  break;
+//                case 'h': printHelp(argv[0]);  break;
+//
+//                case 'M':  mp4fuzzchanges = atoi(&argv[i][2]);	break;
+//                case 'G':  gpmffuzzchanges = atoi(&argv[i][2]); break;
+//                case 'F':  fuzzloopcount = atoi(&argv[i][2]);	break;
+            }
+        }
+    }
 
     GPMF_ERR ret = readMP4File(argv[1]);
 

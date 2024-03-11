@@ -25,7 +25,12 @@ file(GLOB EXPORTER_SOURCES ${LIB_SOURCES}
         exporter/CMetadataEntry.h
 )
 
-add_executable(GPMF_EXPORTER_BIN ${EXPORTER_SOURCES})
+add_executable(GPMF_EXPORTER_BIN ${EXPORTER_SOURCES}
+        exporter/IMetadataEntry.h
+        exporter/CMetadataEntryStruct.cpp
+        exporter/CMetadataEntryStruct.h
+        exporter/CMetadataEntryString.cpp
+        exporter/CMetadataEntryString.h)
 set_target_properties(GPMF_EXPORTER_BIN PROPERTIES OUTPUT_NAME "${PROJECT_NAME}-exporter")
 
 

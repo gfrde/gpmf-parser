@@ -10,18 +10,23 @@
 #include <vector>
 #include <string>
 #include <ostream>
+#include "IMetadataEntry.h"
 
-class CMetadataEntry {
+
+class CMetadataEntry: public IMetadataEntry {
+public:
+
 
 public:
-    void addValue(std::string s);
-    void addValue(double d);
-    void addValue(long d);
+    void addValue(std::string s, std::string unit);
+    void addValue(double d, std::string unit);
+    void addValue(long d, std::string unit);
 
     friend std::ostream &operator<<(std::ostream &os, const CMetadataEntry &entry);
 
 protected:
     std::vector<std::string> values;
+    std::vector<std::string> units;
 };
 
 
