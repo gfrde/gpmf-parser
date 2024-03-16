@@ -10,6 +10,7 @@
 #include "../GPMF_parser.h"
 #include "../GPMF_utils.h"
 #include "CMetadata.h"
+#include "CExporterXml.h"
 
 #define	SHOW_VIDEO_FRAMERATE		1
 #define	SHOW_PAYLOAD_TIME			1
@@ -31,7 +32,7 @@ uint32_t show_computed_samplerates = SHOW_COMPUTED_SAMPLERATES;
 uint32_t show_video_framerate = SHOW_VIDEO_FRAMERATE;
 uint32_t show_payload_time = SHOW_PAYLOAD_TIME;
 uint32_t show_this_four_cc = 0;
-
+std::string exportFile;
 
 
 
@@ -78,13 +79,18 @@ GPMF_ERR readMP4File(char* filename)
             }
         }
 
+        CExporterXml* exportData = nullptr;
+        if (!exportFile.empty()) {
+            exportData = new CExporterXml(exportFile);
+        }
+
         for (index = 0; index < payloads; index++)
         {
             double in = 0.0, out = 0.0; //times
             payloadsize = GetPayloadSize(mp4handle, index);
             payloadres = GetPayloadResource(mp4handle, payloadres, payloadsize);
             payload = GetPayload(mp4handle, payloadres, index);
-            if (payload == NULL)
+            if (payload == nullptr)
                 goto cleanup;
 
             ret = GetPayloadTime(mp4handle, index, &in, &out);
@@ -215,7 +221,13 @@ GPMF_ERR readMP4File(char* filename)
                 if (show_all_payloads || index == SHOW_INDEX)
                 {
                     CMetadata meta("any source", index, in, out);
+                    if (exportData) {
+                        if (index == SHOW_INDEX) {
+                            exportData->create(meta);
+                        }
 
+                        exportData->metadataStart(meta);
+                    }
 
                     printf("SCALED DATA:\n");
                     while (GPMF_OK == GPMF_FindNext(ms, STR2FOURCC("STRM"), GPMF_RECURSE_LEVELS|GPMF_TOLERANT)) //GoPro Hero5/6/7 Accelerometer)
@@ -371,6 +383,19 @@ GPMF_ERR readMP4File(char* filename)
                     std::cout << "   --> " << meta;
                     printf("\n");
 
+                    if (exportData) {
+
+                        for (auto it = meta.getEntriesPerType().begin(); it != meta.getEntriesPerType().end(); it++) {
+                            exportData->typeStart(meta, it->first);
+
+                            for (const auto &item: it->second) {
+                                exportData->write(meta, it->first, item);
+                            }
+                            exportData->typeStop(meta, it->first);
+                        }
+
+                        exportData->metadataStop(meta);
+                    }
                 }
             }
         }
@@ -407,6 +432,13 @@ GPMF_ERR readMP4File(char* filename)
         if (payloadres) FreePayloadResource(mp4handle, payloadres);
         if (ms) GPMF_Free(ms);
         CloseSource(mp4handle);
+
+        if (exportData) {
+            exportData->close();
+            delete exportData;
+            exportData = nullptr;
+        }
+
     }
 
     if (ret != GPMF_OK)
@@ -445,6 +477,10 @@ int main(int argc, char* argv[])
                 case 'v': show_video_framerate ^= 1;			break;
                 case 't': show_payload_time ^= 1;				break;
                 case 'f': show_this_four_cc = STR2FOURCC((&(argv[i][2])));  break;
+                case 'o':
+                    exportFile = (&(argv[i][2]));
+                    printf("file to export to: %s\n", exportFile.c_str());
+                    break;
 //                case 'h': printHelp(argv[0]);  break;
 //
 //                case 'M':  mp4fuzzchanges = atoi(&argv[i][2]);	break;

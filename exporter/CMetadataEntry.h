@@ -27,6 +27,10 @@ public:
 protected:
     std::vector<std::string> values;
     std::vector<std::string> units;
+
+public:
+    [[nodiscard]] const std::vector<std::string> &getValues() const;
+    [[nodiscard]] const std::vector<std::string> &getUnits() const;
 };
 
 

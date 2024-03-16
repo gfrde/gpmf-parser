@@ -24,10 +24,21 @@ private:
 
     std::string sourceName;
     unsigned int index;
+public:
+    unsigned int getIndex() const;
+
+    double getTimeStart() const;
+
+    double getTimeEnd() const;
+
+private:
     double timeStart;
     double timeEnd;
 
     std::map<std::string, std::vector<CMetadataEntry>> entriesPerType;
+
+public:
+    [[nodiscard]] const std::map<std::string, std::vector<CMetadataEntry>> &getEntriesPerType() const;
 };
 
 

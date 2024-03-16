@@ -36,3 +36,19 @@ std::ostream &operator<<(std::ostream &os, const CMetadata &entry) {
     return os;
 }
 
+const std::map<std::string, std::vector<CMetadataEntry>> &CMetadata::getEntriesPerType() const {
+    return entriesPerType;
+}
+
+unsigned int CMetadata::getIndex() const {
+    return index;
+}
+
+double CMetadata::getTimeStart() const {
+    return timeStart;
+}
+
+double CMetadata::getTimeEnd() const {
+    return timeEnd;
+}
+

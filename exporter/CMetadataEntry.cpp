@@ -36,3 +36,11 @@ std::ostream &operator<<(std::ostream &os, const CMetadataEntry &entry) {
     os << "|";
     return os;
 }
+
+const std::vector<std::string> &CMetadataEntry::getValues() const {
+    return values;
+}
+
+const std::vector<std::string> &CMetadataEntry::getUnits() const {
+    return units;
+}
