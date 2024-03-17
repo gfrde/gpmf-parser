@@ -27,7 +27,8 @@ public:
     void typeStart(const CMetadata& data, const std::string &type);
     void typeStop(const CMetadata& data, const std::string &type);
 
-    void write(const CMetadata &meta, const std::string &type, const CMetadataEntry &data);
+    void write(const CMetadata &meta, const std::string &type, long countEntries, long idx,
+               const CMetadataEntry &data);
 
 protected:
     std::string filename;
