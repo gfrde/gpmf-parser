@@ -216,9 +216,9 @@ GPMF_ERR readMP4File(char* filename)
                 }
             }
 
-            if (show_scaled_data)
+            if (show_scaled_data || !exportFile.empty())
             {
-                if (show_all_payloads || index == SHOW_INDEX)
+                if (show_all_payloads || index == SHOW_INDEX || !exportFile.empty())
                 {
                     CMetadata meta("any source", index, in, out);
                     if (exportData) {
@@ -310,7 +310,9 @@ GPMF_ERR readMP4File(char* filename)
                                     int pos = 0;
                                     for (i = 0; i < samples; i++)
                                     {
-                                        printf("  %c%c%c%c ", PRINTF_4CC(key));
+                                        if (exportFile.empty()) {
+                                            printf("  %c%c%c%c ", PRINTF_4CC(key));
+                                        }
 
                                         char fourcc[5];
                                         sprintf(fourcc, "%c%c%c%c", PRINTF_4CC(key));
@@ -328,7 +330,9 @@ GPMF_ERR readMP4File(char* filename)
                                                 s += rawdata[pos];
                                                 entry.addValue(s, "");
 
-                                                printf("%c", rawdata[pos]);
+                                                if (exportFile.empty()) {
+                                                    printf("%c", rawdata[pos]);
+                                                }
 
                                                 pos++;
                                                 ptr++;
@@ -339,7 +343,10 @@ GPMF_ERR readMP4File(char* filename)
                                                 s += std::to_string(*ptr);
                                                 entry.addValue(s, units[j % unit_samples]);
 
-                                                printf("%.5f%s, ", *ptr++, units[j % unit_samples]);
+                                                if (exportFile.empty()) {
+                                                    printf("%.5f%s, ", *ptr, units[j % unit_samples]);
+                                                }
+                                                ptr++;
                                             }
                                             else if (complextype[j] != 'F')
                                             {
@@ -347,7 +354,10 @@ GPMF_ERR readMP4File(char* filename)
                                                 s += std::to_string(*ptr);
                                                 entry.addValue(s, units[j % unit_samples]);
 
-                                                printf("%.8f%s, ", *ptr++, units[j % unit_samples]);
+                                                if (exportFile.empty()) {
+                                                    printf("%.8f%s, ", *ptr, units[j % unit_samples]);
+                                                }
+                                                ptr++;
                                                 pos += GPMF_SizeofType((GPMF_SampleType)complextype[j]);
                                             }
                                             else if (type_samples && complextype[j] == GPMF_TYPE_FOURCC)
@@ -363,15 +373,21 @@ GPMF_ERR readMP4File(char* filename)
 
 
                                                 ptr++;
-                                                printf("'%c%c%c%c', ", rawdata[pos], rawdata[pos + 1], rawdata[pos + 2], rawdata[pos + 3]);
-                                                printf(" (size=%d), ", GPMF_SizeofType((GPMF_SampleType)complextype[j]));
+                                                if (exportFile.empty()) {
+                                                    printf("'%c%c%c%c', ", rawdata[pos], rawdata[pos + 1],
+                                                           rawdata[pos + 2], rawdata[pos + 3]);
+                                                    printf(" (size=%d), ",
+                                                           GPMF_SizeofType((GPMF_SampleType) complextype[j]));
+                                                }
                                                 pos += GPMF_SizeofType((GPMF_SampleType)complextype[j]);
                                             }
                                         }
 
                                         meta.addEntry(fourcc_key, entry);
 //                                        std::cout << "   --> " << entry;
-//                                        printf("\n");
+                                        if (exportFile.empty()) {
+                                            printf("\n");
+                                        }
                                     }
                                 }
                                 free(tmpbuffer);
@@ -380,16 +396,16 @@ GPMF_ERR readMP4File(char* filename)
                     }
                     GPMF_ResetState(ms);
 
-                    std::cout << "   --> " << meta;
+//                    std::cout << "   --> " << meta;
                     printf("\n");
 
                     if (exportData) {
-
                         for (auto it = meta.getEntriesPerType().begin(); it != meta.getEntriesPerType().end(); it++) {
                             exportData->typeStart(meta, it->first);
-
+                            int idx = 0;
                             for (const auto &item: it->second) {
-                                exportData->write(meta, it->first, item);
+                                exportData->write(meta, it->first, it->second.size(), idx, item);
+                                idx ++;
                             }
                             exportData->typeStop(meta, it->first);
                         }
