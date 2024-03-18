@@ -233,7 +233,7 @@ GPMF_ERR readMP4File(char* filename)
 
             if (show_scaled_data || !exportFile.empty())
             {
-                if (show_all_payloads || index == SHOW_INDEX || !exportFile.empty())
+                if (show_all_payloads || index == SHOW_INDEX)
                 {
                     CMetadata meta("any source", index, in, out);
                     if (!exporterList.empty()) {
