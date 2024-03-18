@@ -30,7 +30,7 @@ std::map<std::string, std::vector<std::string>> mappingTypePosition2Element = {
         }},
 };
 
-CExporterXml::CExporterXml(const std::string &filename) : filename(filename) {
+CExporterXml::CExporterXml(const std::string &filename) : IExporter(filename) {
 }
 
 CExporterXml::~CExporterXml() {

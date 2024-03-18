@@ -1,9 +1,9 @@
 //
-// Created by georg on 11.03.24.
+// Created by georg on 17.03.24.
 //
 
-#ifndef GPMF_PARSER_CEXPORTERXML_H
-#define GPMF_PARSER_CEXPORTERXML_H
+#ifndef GPMF_PARSER_CEXPORTERCSV_H
+#define GPMF_PARSER_CEXPORTERCSV_H
 
 
 #include <string>
@@ -11,13 +11,12 @@
 #include "IExporter.h"
 #include "CMetadata.h"
 
-class CExporterXml: public IExporter {
+class CExporterCsv: public IExporter {
 
 public:
+    CExporterCsv(const std::string &filename, const std::vector<std::string> &attrToColumn);
 
-    explicit CExporterXml(const std::string &filename);
-
-    virtual ~CExporterXml();
+    virtual ~CExporterCsv();
 
     void create(const CMetadata& data) override;
     void close() override;
@@ -31,7 +30,9 @@ public:
     void write(const CMetadata &meta, const std::string &type, long countEntries, long idx,
                const CMetadataEntry &data) override;
 
+protected:
+    std::vector<std::string> attrToColumn;
 };
 
 
-#endif //GPMF_PARSER_CEXPORTERXML_H
+#endif //GPMF_PARSER_CEXPORTERCSV_H

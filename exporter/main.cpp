@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cstdint>
 #include <iostream>
+#include <algorithm>
 
 #include "../demo/GPMF_mp4reader.h"
 #include "../GPMF_common.h"
@@ -11,6 +12,7 @@
 #include "../GPMF_utils.h"
 #include "CMetadata.h"
 #include "CExporterXml.h"
+#include "CExporterCsv.h"
 
 #define	SHOW_VIDEO_FRAMERATE		1
 #define	SHOW_PAYLOAD_TIME			1
@@ -79,9 +81,22 @@ GPMF_ERR readMP4File(char* filename)
             }
         }
 
-        CExporterXml* exportData = nullptr;
+        std::vector<IExporter*> exporterList;
         if (!exportFile.empty()) {
-            exportData = new CExporterXml(exportFile);
+            exporterList.push_back(new CExporterXml(exportFile + ".xml"));
+
+
+            std::vector<std::string> attrToColumn;
+            for (const auto &perType: mappingTypePosition2Element) {
+                for (const auto &item: perType.second) {
+                    std::string c = perType.first + "_" + item;
+                    std::transform(c.begin(), c.end(), c.begin(),
+                                   [](unsigned char c){ return std::tolower(c); });
+
+                    attrToColumn.push_back(c);
+                }
+            }
+            exporterList.push_back(new CExporterCsv(exportFile + ".csv", attrToColumn));
         }
 
         for (index = 0; index < payloads; index++)
@@ -221,12 +236,16 @@ GPMF_ERR readMP4File(char* filename)
                 if (show_all_payloads || index == SHOW_INDEX || !exportFile.empty())
                 {
                     CMetadata meta("any source", index, in, out);
-                    if (exportData) {
+                    if (!exporterList.empty()) {
                         if (index == SHOW_INDEX) {
-                            exportData->create(meta);
+                            for (const auto &exporter: exporterList) {
+                                exporter->create(meta);
+                            }
                         }
 
-                        exportData->metadataStart(meta);
+                        for (const auto &exporter: exporterList) {
+                            exporter->metadataStart(meta);
+                        }
                     }
 
                     printf("SCALED DATA:\n");
@@ -399,18 +418,19 @@ GPMF_ERR readMP4File(char* filename)
 //                    std::cout << "   --> " << meta;
                     printf("\n");
 
-                    if (exportData) {
-                        for (auto it = meta.getEntriesPerType().begin(); it != meta.getEntriesPerType().end(); it++) {
-                            exportData->typeStart(meta, it->first);
+                    for (const auto &exporter: exporterList) {
+                        for (auto it = meta.getEntriesPerType().begin();
+                             it != meta.getEntriesPerType().end(); it++) {
+                            exporter->typeStart(meta, it->first);
                             int idx = 0;
                             for (const auto &item: it->second) {
-                                exportData->write(meta, it->first, it->second.size(), idx, item);
-                                idx ++;
+                                exporter->write(meta, it->first, it->second.size(), idx, item);
+                                idx++;
                             }
-                            exportData->typeStop(meta, it->first);
+                            exporter->typeStop(meta, it->first);
                         }
 
-                        exportData->metadataStop(meta);
+                        exporter->metadataStop(meta);
                     }
                 }
             }
@@ -449,12 +469,11 @@ GPMF_ERR readMP4File(char* filename)
         if (ms) GPMF_Free(ms);
         CloseSource(mp4handle);
 
-        if (exportData) {
-            exportData->close();
-            delete exportData;
-            exportData = nullptr;
+        for (const auto &exporter: exporterList) {
+            exporter->close();
+            delete exporter;
         }
-
+        exporterList.clear();
     }
 
     if (ret != GPMF_OK)

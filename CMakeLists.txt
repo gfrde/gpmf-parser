@@ -33,7 +33,9 @@ add_executable(GPMF_EXPORTER_BIN ${EXPORTER_SOURCES}
         exporter/CMetadataEntryString.h
         exporter/IExporter.h
         exporter/CExporterXml.cpp
-        exporter/CExporterXml.h)
+        exporter/CExporterXml.h
+        exporter/CExporterCsv.cpp
+        exporter/CExporterCsv.h)
 set_target_properties(GPMF_EXPORTER_BIN PROPERTIES OUTPUT_NAME "${PROJECT_NAME}-exporter")
 
 
