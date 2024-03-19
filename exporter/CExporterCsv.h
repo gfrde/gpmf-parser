@@ -14,7 +14,7 @@
 class CExporterCsv: public IExporter {
 
 public:
-    CExporterCsv(const std::string &filename, const std::vector<std::string> &attrToColumn);
+    CExporterCsv(const std::string &filename, const std::vector<std::string> &attrToColumn, bool mergeTimes);
 
     virtual ~CExporterCsv();
 
@@ -31,7 +31,9 @@ public:
                const CMetadataEntry &data) override;
 
 protected:
+    const bool mergeTimes;
     std::vector<std::string> attrToColumn;
+    std::map<double, std::vector<std::string>> combinedData;
 };
 
 

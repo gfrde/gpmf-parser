@@ -96,7 +96,7 @@ GPMF_ERR readMP4File(char* filename)
                     attrToColumn.push_back(c);
                 }
             }
-            exporterList.push_back(new CExporterCsv(exportFile + ".csv", attrToColumn));
+            exporterList.push_back(new CExporterCsv(exportFile + ".csv", attrToColumn, true));
         }
 
         for (index = 0; index < payloads; index++)
