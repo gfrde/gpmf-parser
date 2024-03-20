@@ -488,6 +488,17 @@ GPMF_ERR readMP4File(char* filename)
 }
 
 
+//class comma_numpunct : public std::numpunct<char>
+//{
+//protected:
+//    char do_decimal_point() const override
+//    {
+//        return ',';
+//    }
+//};
+
+
+
 int main(int argc, char* argv[])
 {
 
@@ -497,6 +508,13 @@ int main(int argc, char* argv[])
 //        printHelp(argv[0]);
         return -1;
     }
+
+    setlocale(LC_ALL, "de_DE.UTF-8");
+    std::locale::global( std::locale("de_DE.UTF-8") );
+
+//    std::locale comma_locale(std::locale(), new comma_numpunct());
+//    std::locale::global( comma_locale );
+
 
     for (int i = 2; i < argc; i++)
     {

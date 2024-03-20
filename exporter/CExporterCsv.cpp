@@ -6,6 +6,18 @@
 #include "CExporterCsv.h"
 
 
+bool isNumber(const std::string& s) {
+//    atof(s.c_str());
+
+    char *endptr = NULL;
+    double d = strtod(s.c_str(), &endptr);
+    if (endptr == nullptr) {
+        return false;
+    }
+    return true;
+}
+
+
 CExporterCsv::CExporterCsv(const std::string &filename, const std::vector<std::string> &attrToColumn, bool mergeTimes) : IExporter(
         filename), attrToColumn(attrToColumn), mergeTimes(mergeTimes) {}
 
@@ -52,7 +64,11 @@ void CExporterCsv::metadataStop(const CMetadata &data) {
                     continue;
                 }
 
-                out << "\"" << item << "\"";
+                if (isNumber(item)) {
+                    out << item;
+                } else {
+                    out << "\"" << item << "\"";
+                }
             }
 
             out << std::endl;
@@ -125,7 +141,11 @@ void CExporterCsv::write(const CMetadata &meta, const std::string &type, long co
                 continue;
             }
 
-            out << "\"" << item << "\"";
+            if (isNumber(item)) {
+                out << item;
+            } else {
+                out << "\"" << item << "\"";
+            }
         }
         out << std::endl;
     }
