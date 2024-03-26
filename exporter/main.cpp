@@ -36,6 +36,13 @@ uint32_t show_payload_time = SHOW_PAYLOAD_TIME;
 uint32_t show_this_four_cc = 0;
 std::string exportFile;
 
+//#define USE_LOCALE ""
+#define USE_LOCALE "en_GB.utf8"
+//#define USE_LOCALE "de_DE.ISO-8859-1"
+//#define USE_LOCALE ""de_DE.UTF-8""
+
+//#define CSV_DELIMITER ";"
+#define CSV_DELIMITER ","
 
 
 /**
@@ -96,7 +103,9 @@ GPMF_ERR readMP4File(char* filename)
                     attrToColumn.push_back(c);
                 }
             }
-            exporterList.push_back(new CExporterCsv(exportFile + ".csv", attrToColumn, true));
+            CExporterCsv *csvExp = new CExporterCsv(exportFile + ".csv", attrToColumn, true);
+            csvExp->setDelimiter(CSV_DELIMITER);
+            exporterList.push_back(csvExp);
         }
 
         for (index = 0; index < payloads; index++)
@@ -382,12 +391,12 @@ GPMF_ERR readMP4File(char* filename)
                                             else if (type_samples && complextype[j] == GPMF_TYPE_FOURCC)
                                             {
                                                 std::string s;
-                                                s += "'";
+//                                                s += "'";
                                                 s += rawdata[pos];
                                                 s += rawdata[pos+1];
                                                 s += rawdata[pos+2];
                                                 s += rawdata[pos+3];
-                                                s += "'";
+//                                                s += "'";
                                                 entry.addValue(s, "");
 
 
@@ -509,8 +518,8 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    setlocale(LC_ALL, "de_DE.UTF-8");
-    std::locale::global( std::locale("de_DE.UTF-8") );
+    setlocale(LC_ALL, USE_LOCALE);
+    std::locale::global( std::locale(USE_LOCALE) );
 
 //    std::locale comma_locale(std::locale(), new comma_numpunct());
 //    std::locale::global( comma_locale );

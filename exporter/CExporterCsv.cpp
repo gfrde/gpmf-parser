@@ -11,7 +11,7 @@ bool isNumber(const std::string& s) {
 
     char *endptr = NULL;
     double d = strtod(s.c_str(), &endptr);
-    if (endptr == nullptr) {
+    if (endptr == nullptr || endptr == s.c_str()) {
         return false;
     }
     return true;
@@ -32,9 +32,9 @@ void CExporterCsv::create(const CMetadata &data) {
 
     // write CSV header
     auto col =  attrToColumn.begin();
-    out << "\"time\"" << ";\"frame\"" << ";\"index\"";
+    out << "\"time\"" << delimiter << "\"frame\"" << delimiter  << "\"index\"";
     while (col != attrToColumn.end()) {
-        out << ";\"" << *col << "\"";
+        out << delimiter  << "\"" << *col << "\"";
         col ++;
     }
     out << std::endl;
@@ -56,10 +56,10 @@ void CExporterCsv::metadataStop(const CMetadata &data) {
 //    out << "  </index>" << std::endl;
     if (mergeTimes) {
         for (const auto &timedata: combinedData) {
-            out << timedata.first << ";" << data.getIndex() << ";";
+            out << timedata.first << delimiter << data.getIndex() << delimiter;
 
             for (const auto &item: timedata.second) {
-                out << ";";
+                out << delimiter;
                 if (item.empty()) {
                     continue;
                 }
@@ -67,7 +67,13 @@ void CExporterCsv::metadataStop(const CMetadata &data) {
                 if (isNumber(item)) {
                     out << item;
                 } else {
-                    out << "\"" << item << "\"";
+                    if (std::all_of(std::begin(item), std::end(item),
+                                [](char c){ return std::isprint(c) /*std::isalnum(c)*/; })) {
+                        out << "\"" << item << "\"";
+                    } else {
+                        out << "\"????\"";
+                    }
+
                 }
             }
 
@@ -104,7 +110,7 @@ void CExporterCsv::write(const CMetadata &meta, const std::string &type, long co
             cells = &newEntry.first->second;
         }
     } else {
-        out << time << ";" << meta.getIndex() << ";" << idx;
+        out << time << delimiter << meta.getIndex() << delimiter << idx;
     }
 
     int pos = -1;
@@ -136,7 +142,7 @@ void CExporterCsv::write(const CMetadata &meta, const std::string &type, long co
 
     if (!mergeTimes) {
         for (const auto &item: *cells) {
-            out << ";";
+            out << delimiter;
             if (item.empty()) {
                 continue;
             }
@@ -149,5 +155,9 @@ void CExporterCsv::write(const CMetadata &meta, const std::string &type, long co
         }
         out << std::endl;
     }
+}
+
+void CExporterCsv::setDelimiter(const std::string &delimiter) {
+    CExporterCsv::delimiter = delimiter;
 }
 

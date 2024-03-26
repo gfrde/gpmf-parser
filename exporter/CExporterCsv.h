@@ -32,6 +32,11 @@ public:
 
 protected:
     const bool mergeTimes;
+    std::string delimiter = ";";
+public:
+    void setDelimiter(const std::string &delimiter);
+
+protected:
     std::vector<std::string> attrToColumn;
     std::map<double, std::vector<std::string>> combinedData;
 };

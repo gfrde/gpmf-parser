@@ -2,6 +2,7 @@
 // Created by georg on 02.02.24.
 //
 
+#include <algorithm>
 #include "CMetadataEntry.h"
 
 void CMetadataEntry::addValue(double d, std::string unit) {
@@ -14,7 +15,7 @@ void CMetadataEntry::addValue(long d, std::string unit) {
     units.push_back(unit);
 }
 
-void CMetadataEntry::addValue(const std::string s, std::string unit) {
+void CMetadataEntry::addValue(std::string s, std::string unit) {
     values.push_back(s);
     units.push_back(unit);
 }
