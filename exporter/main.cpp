@@ -36,8 +36,8 @@ uint32_t show_payload_time = SHOW_PAYLOAD_TIME;
 uint32_t show_this_four_cc = 0;
 std::string exportFile;
 
-//#define USE_LOCALE ""
-#define USE_LOCALE "en_GB.utf8"
+#define USE_LOCALE ""
+//#define USE_LOCALE "en_GB.utf8"
 //#define USE_LOCALE "de_DE.ISO-8859-1"
 //#define USE_LOCALE ""de_DE.UTF-8""
 
@@ -497,14 +497,15 @@ GPMF_ERR readMP4File(char* filename)
 }
 
 
-//class comma_numpunct : public std::numpunct<char>
-//{
-//protected:
-//    char do_decimal_point() const override
-//    {
+class comma_numpunct : public std::numpunct<char>
+{
+protected:
+    char do_decimal_point() const override
+    {
 //        return ',';
-//    }
-//};
+        return '.';
+    }
+};
 
 
 
@@ -518,12 +519,13 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    setlocale(LC_ALL, USE_LOCALE);
-    std::locale::global( std::locale(USE_LOCALE) );
+    setlocale(LC_ALL, "C");
+//    setlocale(LC_ALL, USE_LOCALE);
+//    std::locale::global( std::locale(USE_LOCALE) );
 
-//    std::locale comma_locale(std::locale(), new comma_numpunct());
-//    std::locale::global( comma_locale );
-
+    std::locale comma_locale(std::locale(), new comma_numpunct());
+    std::locale::global( comma_locale );
+//    setlocale(LC_ALL, comma_locale);
 
     for (int i = 2; i < argc; i++)
     {
